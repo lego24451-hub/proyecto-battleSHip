@@ -1,14 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package proyecto2.pkg0;
-
-/**
- *
- * @author spodi
- */
-
 
 import java.util.Scanner;
 
@@ -27,7 +17,8 @@ public class Battleship {
     public void startMenu() {
         int option;
         do {
-            System.out.println("\n1. Login");
+            System.out.println("\n=== BATTLESHIP DINAMICO ===");
+            System.out.println("1. Login");
             System.out.println("2. Crear Player");
             System.out.println("3. Salir");
             option = sc.nextInt();
@@ -59,6 +50,15 @@ public class Battleship {
     private void createPlayer() {
         System.out.print("Nuevo username: ");
         String user = sc.nextLine();
+        
+        // Validar que sea único
+        for(int i = 0; i < playerCount; i++) {
+            if(players[i].getUsername().equals(user)) {
+                System.out.println("El username ya existe");
+                return;
+            }
+        }
+        
         System.out.print("Password: ");
         String pass = sc.nextLine();
 
@@ -70,27 +70,26 @@ public class Battleship {
     private void mainMenu() {
         int op;
         do {
-            System.out.println("\n1. Jugar");
+            System.out.println("\n=== MENU PRINCIPAL ===");
+            System.out.println("1. Jugar");
             System.out.println("2. Configuracion");
             System.out.println("3. Perfil");
-            System.out.println("4. Reportes");
-            System.out.print("5. Cerrar session");
+            System.out.println("4. Cerrar sesion");
             op = sc.nextInt();
             sc.nextLine();
 
             if(op==1) playGame();
             if(op==2) configMenu();
-            if(op==3) profileMenu();
-            if(op==4) reportsMenu();
+            if(op==3) currentUser.showData();
 
-        } while(op!=5);
-        
+        } while(op!=4);
     }
 
     private void configMenu() {
         int op;
         do {
-            System.out.println("\n1. Dificultad");
+            System.out.println("\n=== CONFIGURACION ===");
+            System.out.println("1. Dificultad");
             System.out.println("2. Modo");
             System.out.println("3. Regresar");
             op = sc.nextInt();
@@ -111,6 +110,8 @@ public class Battleship {
         if(op==2){difficulty=4; difficultyName="NORMAL";}
         if(op==3){difficulty=2; difficultyName="EXPERT";}
         if(op==4){difficulty=1; difficultyName="GENIUS";}
+        
+        System.out.println("Dificultad cambiada a: " + difficultyName);
     }
 
     private void configMode() {
@@ -120,6 +121,8 @@ public class Battleship {
 
         if(op==1) gameMode="TUTORIAL";
         if(op==2) gameMode="ARCADE";
+        
+        System.out.println("Modo cambiado a: " + gameMode);
     }
 
     private void playGame() {
@@ -132,7 +135,10 @@ public class Battleship {
             if(players[i].getUsername().equals(name2))
                 p2 = players[i];
         }
-        if(p2==null) return;
+        if(p2==null) {
+            System.out.println("Jugador no encontrado");
+            return;
+        }
 
         boolean easy = difficulty==5;
 
@@ -144,49 +150,80 @@ public class Battleship {
 
         while(attacker.getBoard().hasShips()
            && defender.getBoard().hasShips()) {
-            System.out.println("\nCoordenada de bomba (" + attacker.getUsername() + "):");
-System.out.println("- " + defender.getUsername() + " tiene "
-        + defender.getBoard().countShips() + " barcos aun -");
 
-            System.out.println(attacker.getUsername()+" ataca");
-           System.out.print("Fila: ");
-int r = sc.nextInt();
+            // Limpiar las F del turno anterior
+            defender.getBoard().clearFailMarks();
 
-System.out.print("Col: ");
-int c = sc.nextInt();
+            System.out.println("\n========================================");
+            System.out.println("Turno de: " + attacker.getUsername());
+            System.out.println("========================================");
+            System.out.println("- " + defender.getUsername() + " tiene " 
+                + defender.getBoard().countShips() + " barcos aun -");
+            
+            // Mostrar estado de barcos en modo TUTORIAL
+            if(gameMode.equals("TUTORIAL")) {
+                defender.getBoard().showShipsStatus();
+            }
+            
+            System.out.println("Coordenada de bomba (ingresa -1 -1 para retirarte):");
+            System.out.print("Fila: ");
+            int r = sc.nextInt();
+            System.out.print("Col: ");
+            int c = sc.nextInt();
 
-// ===== RETIRO =====
-if(r == -1 || c == -1) { //metodo de retiro 
-    sc.nextLine(); // limpiar buffer
-    System.out.print("¿Seguro que deseas retirarte? (S/N): ");
-    String confirm = sc.nextLine().toUpperCase();
+            // Verificar retiro
+            if(r == -1 || c == -1) {
+                sc.nextLine();
+                System.out.print("¿Seguro que deseas retirarte? (S/N): ");
+                String confirm = sc.nextLine().toUpperCase();
 
-    if(confirm.equals("S")) {
-        defender.addPoints(3);
-        defender.addLog("Victoria por retiro de " + attacker.getUsername());
+                if(confirm.equals("S")) {
+                    defender.addPoints(3);
+                    defender.addLog("Victoria por retiro de " + attacker.getUsername());
+                    attacker.addLog("Derrota por retiro propio contra " + defender.getUsername());
 
-        System.out.println(attacker.getUsername() + " se ha retirado.");
-        System.out.println("Ganador: " + defender.getUsername());
-        return; // termina el juego
-    } else {
-        continue; // vuelve a pedir coordenadas
-    }
-}
+                    System.out.println(attacker.getUsername() + " se ha retirado.");
+                    System.out.println("GANADOR: " + defender.getUsername());
+                    return;
+                } else {
+                    continue;
+                }
+            }
 
             boolean hit = defender.getBoard().attack(r,c);
 
-           if(hit) {
-    System.out.println("Impacto!");
-
-    if(defender.getBoard().countShips() == 0) {
-        System.out.println("Todos los barcos destruidos!");
-    }
-} else {
-    System.out.println("Agua");
-}
-
-            defender.getBoard().printBoard(
-                gameMode.equals("TUTORIAL"));
+            if(hit) {
+                Ship hitShip = defender.getBoard().getShipAt(r, c);
+                
+                if(hitShip != null) {
+                    System.out.println("\nSE HA BOMBARDEADO UN " + hitShip.getName().toUpperCase() + "!");
+                    System.out.println("Vida restante: " + hitShip.getCurrentLife() + "/" + hitShip.getMaxLife());
+                    
+                    // Mostrar tablero ANTES de regenerar
+                    System.out.println("\n--- Tablero de " + defender.getUsername() + " ANTES de regenerar ---");
+                    defender.getBoard().printBoard(gameMode.equals("TUTORIAL"));
+                    
+                    // Verificar si se hundió ANTES de regenerar
+                    if(hitShip.isSunk()) {
+                        System.out.println("\n*** SE HUNDIO EL " + hitShip.getName().toUpperCase() + "! Del " + defender.getUsername() + " ***\n");
+                    }
+                    
+                    // REGENERAR EL TABLERO si aún hay barcos
+                    if(defender.getBoard().hasShips()) {
+                        defender.getBoard().clearHitMarks(); // Limpiar la X temporal
+                        defender.getBoard().regenerateBoard();
+                        System.out.println("¡TABLERO REGENERADO! Los barcos se han movido a nuevas posiciones.\n");
+                        
+                        // Mostrar tablero DESPUÉS de regenerar
+                        System.out.println("--- Tablero de " + defender.getUsername() + " DESPUES de regenerar ---");
+                        defender.getBoard().printBoard(gameMode.equals("TUTORIAL"));
+                    }
+                }
+            } else {
+                // Mostrar tablero con la F
+                System.out.println("\n--- Tablero de " + defender.getUsername() + " ---");
+                defender.getBoard().printBoard(gameMode.equals("TUTORIAL"));
+            }
 
             Player temp = attacker;
             attacker = defender;
@@ -195,145 +232,14 @@ if(r == -1 || c == -1) { //metodo de retiro
 
         Player winner =
             attacker.getBoard().hasShips() ? attacker : defender;
+        Player loser = (winner == attacker) ? defender : attacker;
 
         winner.addPoints(3);
-        winner.addLog(winner.getUsername() +
-    " hundio todos los barcos de " +
-    (winner == currentUser ? p2.getUsername() : currentUser.getUsername()) +
-    " en modo " + difficultyName + ".");
+        winner.addLog(winner.getUsername() + " hundio todos los barcos de " + loser.getUsername() + " en modo " + difficultyName);
+        loser.addLog("Derrota contra " + winner.getUsername() + " en modo " + difficultyName);
 
-        System.out.println("Ganador: "+winner.getUsername());
-    }
-    private void profileMenu() {
-    int op;
-
-    do {
-        System.out.println("\n--- PERFIL ---");
-        System.out.println("1. Ver datos");
-        System.out.println("2. Modificar username");
-        System.out.println("3. Modificar password");
-        System.out.println("4. Eliminar cuenta");
-        System.out.println("5. Ver historial");
-        System.out.println("6. Regresar");
-
-        op = sc.nextInt();
-        sc.nextLine();
-
-        if(op == 1) currentUser.showData();
-
-        if(op == 2) {
-            System.out.print("Nuevo username: ");
-            String newUser = sc.nextLine();
-            currentUser.setUsername(newUser);
-            System.out.println("Username actualizado.");
-        }
-
-        if(op == 3) {
-            System.out.print("Nueva password: ");
-            String newPass = sc.nextLine();
-            currentUser.setPassword(newPass);
-            System.out.println("Password actualizada.");
-        }
-
-        if(op == 4) {
-            deleteAccount();
-            return;
-        }
-
-        if(op == 5) currentUser.showLogs();
-
-    } while(op != 6);
-}
-    private void deleteAccount() {
-
-    System.out.print("¿Seguro que deseas eliminar tu cuenta? (S/N): ");
-    String confirm = sc.nextLine().toUpperCase();
-
-    if(confirm.equals("S")) {
-
-        for(int i = 0; i < playerCount; i++) {
-            if(players[i] == currentUser) {
-
-                for(int j = i; j < playerCount - 1; j++) {
-                    players[j] = players[j+1];
-                }
-
-                players[playerCount - 1] = null;
-                playerCount--;
-
-                currentUser = null;
-
-                System.out.println("Cuenta eliminada.");
-                return;
-            }
-        }
-    } else {
-        System.out.println("Cancelado.");
-    }
-
-    
-}
-   private void reportsMenu() {
-
-    int op;
-
-    do {
-        System.out.println("\n--- REPORTES ---");
-        System.out.println("1. Descripcion de mis ultimos 10 juegos");
-        System.out.println("2. Ranking de jugadores");
-        System.out.println("3. Regresar");
-
-        op = sc.nextInt();
-        sc.nextLine();
-
-        if(op == 1) showLastGames();
-        if(op == 2) showRanking();
-
-    } while(op != 3);
-}
-   private void showLastGames() {
-
-    System.out.println("\n--- MIS ULTIMOS 10 JUEGOS ---");
-
-    String[] logs = currentUser.getLogs();
-
-    for(int i = 0; i < logs.length; i++) {
-        if(logs[i] != null) {
-            System.out.println((i+1) + "- " + logs[i]);
-        }
+        System.out.println("\n========================================");
+        System.out.println("GANADOR: " + winner.getUsername());
+        System.out.println("========================================");
     }
 }
-   private void showRanking() {
-
-    System.out.println("\n--- RANKING DE JUGADORES ---");
-
-    // Copia del arreglo para no modificar el original
-    Player[] temp = new Player[playerCount];
-
-    for(int i = 0; i < playerCount; i++) {
-        temp[i] = players[i];
-    }
-
-    // Ordenar de mayor a menor (Burbuja simple)
-    for(int i = 0; i < playerCount - 1; i++) {
-        for(int j = 0; j < playerCount - i - 1; j++) {
-            if(temp[j].getPoints() < temp[j+1].getPoints()) {
-
-                Player aux = temp[j];
-                temp[j] = temp[j+1];
-                temp[j+1] = aux;
-            }
-        }
-    }
-
-    // Mostrar ranking
-    for(int i = 0; i < playerCount; i++) {
-        System.out.println((i+1) + ". "
-            + temp[i].getUsername()
-            + " - "
-            + temp[i].getPoints() + " pts");
-    }
-}
-}
-
-

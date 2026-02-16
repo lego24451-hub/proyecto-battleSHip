@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyecto2.pkg0;
 
-/**
- *
- * @author spodi
- */
 import java.util.Scanner;
 
 public class Player {
@@ -26,23 +18,27 @@ public class Player {
         this.points = 0;
     }
 
-    public String getUsername() { return username; }
-    public String getPassword() { return password; }
-    public int getPoints() { return points; }
-
-    public void setUsername(String u) { username = u; }
-    public void setPassword(String p) { password = p; }
-
-    public void addPoints(int p) { points += p; }
-
-    public void addLog(String log) {
-        for(int i = logs.length-1; i > 0; i--) {
+    public String getUsername() { 
+        return username; 
+    }public String getPassword() 
+    { return password; }
+    public int getPoints() { 
+        return points; 
+    }public void setUsername(String u) 
+    { username = u; 
+    }public void setPassword(String p){ 
+        password = p;
+    }public void addPoints(int p){ 
+        points += p; 
+    }public void addLog(String log){
+        for(int i = logs.length-1; i > 0; i--){
             logs[i] = logs[i-1];
         }
         logs[0] = log;
     }
 
     public void showLogs() {
+        System.out.println("\n=== ULTIMOS 10 JUEGOS ===");
         for(int i = 0; i < logs.length; i++) {
             if(logs[i] != null) {
                 System.out.println((i+1) + "- " + logs[i]);
@@ -51,6 +47,7 @@ public class Player {
     }
 
     public void showData() {
+        System.out.println("\n=== PERFIL ===");
         System.out.println("Username: " + username);
         System.out.println("Points: " + points);
     }
@@ -63,31 +60,49 @@ public class Player {
         board = new Boards();
 
         int placed = 0;
-        boolean usedA=false, usedB=false, usedS=false, usedD=false;
+        boolean usedPA=false, 
+                usedAZ=false, 
+                usedSM=false, 
+                usedDT=false;
+
+        System.out.println("\n=== COLOCACION DE BARCOS: " + username + " ===");
+        System.out.println("Barcos a colocar: " + maxShips);
+        System.out.println("PA=Portaaviones(5) | AZ=Acorazado(4) | SM=Submarino(3) | DT=Destructor(2)");
 
         while(placed < maxShips) {
 
-            System.out.println(username + " - Barco #" + (placed+1));
-           char code;
+            System.out.println("\n" + username + " - Barco #" + (placed+1));
+            System.out.print("Codigo (PA,AZ,SM,DT): ");
+            String code = sc.next().toUpperCase();
 
-while(true) { // metodo de validacion para que solo se coloque lo mostrado
-    System.out.print("Codigo (A,B,S,D): ");
-    code = sc.next().toUpperCase().charAt(0);
+            // Validar código
+            if(!code.equals("PA") && !code.equals("AZ") && 
+               !code.equals("SM") && !code.equals("DT")) {
+                System.out.println("Codigo invalido. Use PA, AZ, SM o DT");
+                continue;
+            }
 
-    if(code == 'A' || code == 'B' || code == 'S' || code == 'D') {
-        break;
-    } else {
-        System.out.println("Codigo invalido. Solo A, B, S o D.");
-    }
-}
-            if(code=='A' && usedA) continue;
-            if(code=='B' && usedB) continue;
-            if(code=='S' && usedS) continue;
-            if(code=='D' && usedD && !easyMode) continue;
+            // Validar repetidos
+            if(code.equals("PA") && usedPA) {
+                System.out.println("Ya colocaste un Portaaviones");
+                continue;
+            }
+            if(code.equals("AZ") && usedAZ) {
+                System.out.println("Ya colocaste un Acorazado");
+                continue;
+            }
+            if(code.equals("SM") && usedSM) {
+                System.out.println("Ya colocaste un Submarino");
+                continue;
+            }
+            if(code.equals("DT") && usedDT && !easyMode) {
+                System.out.println("Ya colocaste un Destructor");
+                continue;
+            }
 
-            System.out.print("Fila: ");
+            System.out.print("Fila (0-7): ");
             int r = sc.nextInt();
-            System.out.print("Columna: ");
+            System.out.print("Columna (0-7): ");
             int c = sc.nextInt();
 
             if(!board.canPlace(r,c)) {
@@ -97,104 +112,22 @@ while(true) { // metodo de validacion para que solo se coloque lo mostrado
 
             board.placeShip(r,c,code);
 
-            if(code=='A') usedA=true;
-            if(code=='B') usedB=true;
-            if(code=='S') usedS=true;
-            if(code=='D') usedD=true;
+            if(code.equals("PA")) 
+                usedPA=true;
+            if(code.equals("AZ"))
+                usedAZ=true;
+            if(code.equals("SM"))
+                usedSM=true;
+            if(code.equals("DT"))
+                usedDT=true;
 
             placed++;
             board.printBoard(true);
         }
+        
+        System.out.println("\n" + username + " ha terminado de colocar sus barcos.");
+        System.out.println("Presiona ENTER para continuar...");
+        sc.nextLine();
+        sc.nextLine();
     }
-    //metodo para validar que se coloque la letra correcta
-    public void setupShipsManual(int maxShips, boolean easyMode) {
-
-    board = new Boards();
-    int placed = 0;
-
-    boolean usedA = false;
-    boolean usedB = false;
-    boolean usedS = false;
-    boolean usedD = false;
-
-    while(placed < maxShips) {
-
-        System.out.println(username + " - Barco #" + (placed + 1));
-
-        // ===== VALIDACION DE CODIGO =====
-        char code;
-        while(true) {
-            System.out.print("Codigo (A,B,S,D): ");
-            code = sc.next().toUpperCase().charAt(0);
-
-            if(code == 'A' || code == 'B' || code == 'S' || code == 'D') {
-                break;
-            } else {
-                System.out.println("Codigo incorrecto. Solo se permite A, B, S o D.");
-            }
-        }
-
-        // ===== VALIDACION DE REPETIDOS =====
-        if(code == 'A' && usedA) {
-            System.out.println("Ya colocaste un Aircraft.");
-            continue;
-        }
-        if(code == 'B' && usedB) {
-            System.out.println("Ya colocaste un Battleship.");
-            continue;
-        }
-        if(code == 'S' && usedS) {
-            System.out.println("Ya colocaste un Submarine.");
-            continue;
-        }
-        if(code == 'D' && usedD && !easyMode) {
-            System.out.println("Ya colocaste un Destructor.");
-            continue;
-        }
-
-        // ===== VALIDACION DE COORDENADAS =====
-        int row, col;
-
-        while(true) {
-            System.out.print("Fila (0-7): ");
-            row = sc.nextInt();
-
-            System.out.print("Columna (0-7): ");
-            col = sc.nextInt();
-
-            if(row < 0 || row > 7 || col < 0 || col > 7) {
-                System.out.println("Coordenadas fuera del tablero. Intente de nuevo.");
-                continue;
-            }
-
-            if(!board.canPlace(row, col)) {
-                System.out.println("Ya hay un barco en esa posicion.");
-                continue;
-            }
-
-            break;
-        }
-
-        // ===== COLOCAR BARCO =====
-        board.placeShip(row, col, code);
-
-        // Marcar como usados
-        if(code == 'A') usedA = true;
-        if(code == 'B') usedB = true;
-        if(code == 'S') usedS = true;
-        if(code == 'D') usedD = true;
-
-        placed++;
-
-        // Mostrar tablero
-        board.printBoard(true);
-    }
-
-    System.out.println(username + " ha terminado de colocar sus barcos.");
 }
-    public String[] getLogs() {
-    return logs;
-}
-}
-
-

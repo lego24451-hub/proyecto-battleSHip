@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package proyecto2.pkg0;
 
-/**
- *
- * @author spodi
- */
+package proyecto2.pkg0;
 public class Coordinate {
 
     private int row;
@@ -43,4 +35,3 @@ public class Coordinate {
         return "(" + row + ", " + col + ")";
     }
 }
-

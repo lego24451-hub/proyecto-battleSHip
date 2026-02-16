@@ -1,39 +1,63 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package proyecto2.pkg0;
 
-/**
- *
- * @author spodi
- */
 public class Ship {
-    private char code;
-    private int life;
+    private String code;
+    private int maxLife;
+    private int currentLife;
+    private String name;
 
-    public Ship(char code) {
+    public Ship(String code) {
         this.code = code;
 
         switch(code) {
-            case 'A': life = 5; break;
-            case 'B': life = 4; break;
-            case 'S': life = 3; break;
-            case 'D': life = 2; break;
+            case "PA": 
+                maxLife = 5; 
+                name = "Portaaviones";
+                break;
+            case "AZ": 
+                maxLife = 4; 
+                name = "Acorazado";
+                break;
+            case "SM": 
+                maxLife = 3; 
+                name = "Submarino";
+                break;
+            case "DT": 
+                maxLife = 2; 
+                name = "Destructor";
+                break;
+            default:
+                maxLife = 1;
+                name = "Unknown";
         }
+        
+        this.currentLife = maxLife;
     }
 
-    public char getCode() {
+    public String getCode() {
         return code;
     }
 
+    public int getCurrentLife() {
+        return currentLife;
+    }
+
+    public int getMaxLife() {
+        return maxLife;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public void hit() {
-        life--;
+        if(currentLife > 0) {
+            currentLife--;
+        }
     }
 
     public boolean isSunk() {
-        return life <= 0;
+        return currentLife <= 0;
     }
 }
-
-
